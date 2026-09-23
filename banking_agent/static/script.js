@@ -5,8 +5,8 @@ const customer = document.querySelector("#customer");
 const account = document.querySelector("#account");
 let threadId = crypto.randomUUID();
 
-function accountIdentityMessage(text) {
-  if (!/(account\s*(status|type)|available\s+balance|balance\s*:)/i.test(text)) {
+function accountIdentityMessage(text, request) {
+  if (!/(account\s*detail|account\s*type)/i.test(request)) {
     return text;
   }
   const selectedCustomer = customer.options[customer.selectedIndex]?.text || "";
@@ -15,7 +15,7 @@ function accountIdentityMessage(text) {
   return `Account Number: ${account.value.trim()}\nAccount Name: ${customerName} (${customerId})`;
 }
 
-function addMessage(text, type) {
+function addMessage(text, type, request = "") {
   const item = document.createElement("div");
   item.className = `message ${type}`;
   if (typeof text === "string") {
@@ -29,7 +29,7 @@ function addMessage(text, type) {
     item.textContent = text?.content || text?.text || JSON.stringify(text);
   }
   if (type === "agent") {
-    item.textContent = accountIdentityMessage(item.textContent);
+    item.textContent = accountIdentityMessage(item.textContent, request);
   }
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
@@ -58,7 +58,7 @@ async function sendMessage(text) {
     if (data.account_number) account.value = data.account_number;
     if (data.customer_id) customer.value = data.customer_id;
     threadId = data.thread_id || threadId;
-    addMessage(data.response, "agent");
+    addMessage(data.response, "agent", text);
   } catch (error) {
     addMessage(error.message, "agent");
   }
