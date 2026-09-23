@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Weather Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f2f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 450px;
+            height: 650px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background: #4facfe;
+            color: white;
+            font-size: 22px;
+        }
+
+        .chat-box {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+        }
+
+        .message span {
+            padding: 10px 14px;
+            border-radius: 15px;
+            max-width: 75%;
+            line-height: 1.4;
+        }
+
+        .user {
+            justify-content: flex-end;
+        }
+
+        .user span {
+            background: #4facfe;
+            color: white;
+        }
+
+        .agent {
+            justify-content: flex-start;
+        }
+
+        .agent span {
+            background: #eeeeee;
+            color: #333;
+        }
+
+        .input-form {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid #ddd;
+            gap: 8px;
+        }
+
+        .input-form input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        .input-form button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 20px;
+            background: #4facfe;
+            color: white;
+            cursor: pointer;
+        }
+
+        .input-form button:hover {
+            background: #2583d8;
+        }
+
+        .clear {
+            margin: 10px auto 15px;
+            display: block;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 20px;
+            background: #eee;
+            cursor: pointer;
+        }
+
+        .clear:hover {
+            background: #ddd;
+        }
+
+        .empty-message {
+            color: #999;
+            text-align: center;
+            margin-top: 250px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🌤️ Weather Assistant</h1>
+
+    <div class="chat-box">
+
+        {% if messages %}
+
+            {% for msg in messages %}
+
+                {% if msg.type == "human" %}
+                    <div class="message user">
+                        <span>{{ msg.content }}</span>
+                    </div>
+
+                {% elif msg.type == "ai" %}
+                    <div class="message agent">
+                        <span>{{ msg.content }}</span>
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="empty-message">
+                Ask me about the weather!
+            </p>
+
+        {% endif %}
+
+    </div>
+
+    <form method="POST" action="/send" class="input-form" id="chatForm">
+
+    <input
+        type="text"
+        name="message"
+        placeholder="Ask about the weather..."
+        required
+    >
+
+    <input type="hidden" name="latitude" id="latitude">
+    <input type="hidden" name="longitude" id="longitude">
+
+    <button type="submit">Send</button>
+
+</form>
+
+    <a href="/clear">
+        <button type="button" class="clear">
+            🗑️ New Conversation
+        </button>
+    </a>
+
+</div>
+
+</body>
+</html>

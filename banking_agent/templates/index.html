@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Banking AI Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Demo Banking AI Assistant</h1>
+      <p>Demo Environment - No Real Banking Data</p>
+    </header>
+    <section class="controls">
+      <label for="customer">Demo Customer</label>
+      <select id="customer">
+        <option value="C001">Rahul Sharma (C001)</option>
+        <option value="C002">Amit Kumar (C002)</option>
+        <option value="C003">Priya Singh (C003)</option>
+        <option value="C004">Neha Verma (C004)</option>
+        <option value="C005">Arjun Kumar (C005)</option>
+      </select>
+      <input id="account" inputmode="numeric" maxlength="10" placeholder="Demo account number (optional)">
+    </section>
+    <section id="chat" class="chat" aria-live="polite">
+      <div class="message agent">Hello! Welcome to the demo banking assistant. Please provide your demo account number.</div>
+    </section>
+    <nav class="quick-actions">
+      <button data-message="Check my balance">Check Balance</button>
+      <button data-message="Show my last 5 transactions">Transaction History</button>
+      <button data-message="Show my account details">Account Details</button>
+      <button data-message="List my accounts">My Accounts</button>
+      <button data-message="I want customer care">Customer Care</button>
+    </nav>
+    <form id="chat-form">
+      <input id="message" placeholder="Ask something..." autocomplete="off">
+      <button type="submit">Send</button>
+    </form>
+  </main>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
