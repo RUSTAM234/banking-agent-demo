@@ -8,9 +8,16 @@ let threadId = crypto.randomUUID();
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = `message ${type}`;
-  item.textContent = typeof text === "string"
-    ? text
-    : (text?.content || text?.text || JSON.stringify(text));
+  if (typeof text === "string") {
+    item.textContent = text;
+  } else if (Array.isArray(text)) {
+    item.textContent = text
+      .map((part) => typeof part === "string" ? part : part?.text || part?.content || "")
+      .filter(Boolean)
+      .join("\n");
+  } else {
+    item.textContent = text?.content || text?.text || JSON.stringify(text);
+  }
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
