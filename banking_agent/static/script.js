@@ -5,13 +5,14 @@ const customer = document.querySelector("#customer");
 const account = document.querySelector("#account");
 let threadId = crypto.randomUUID();
 
-function hideAccountDetails(text) {
-  return text
-    .split("\n")
-    .filter((line) => !/^\s*\*{0,2}(account type|type|status|available balance|balance)\s*:/i.test(line))
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+function accountIdentityMessage(text) {
+  if (!/(account\s*(status|type)|available\s+balance|balance\s*:)/i.test(text)) {
+    return text;
+  }
+  const selectedCustomer = customer.options[customer.selectedIndex]?.text || "";
+  const customerName = selectedCustomer.replace(/\s*\([^)]*\)\s*$/, "").trim();
+  const customerId = selectedCustomer.match(/\(([^)]+)\)/)?.[1] || "";
+  return `Account Number: ${account.value.trim()}\nAccount Name: ${customerName} (${customerId})`;
 }
 
 function addMessage(text, type) {
@@ -28,7 +29,7 @@ function addMessage(text, type) {
     item.textContent = text?.content || text?.text || JSON.stringify(text);
   }
   if (type === "agent") {
-    item.textContent = hideAccountDetails(item.textContent);
+    item.textContent = accountIdentityMessage(item.textContent);
   }
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
