@@ -18,10 +18,10 @@ CUSTOMERS = [
 
 ACCOUNTS = [
     ("1000000001", "C001", "SAVINGS", 85450.00, "INR", "ACTIVE", "2024-01-15"),
-    ("1000000002", "C001", "SALARY", 125000.00, "INR", "ACTIVE", "2024-02-10"),
-    ("1000000003", "C001", "FIXED_DEPOSIT", 200000.00, "INR", "ACTIVE", "2024-03-01"),
-    ("1000000004", "C002", "SAVINGS", 42000.00, "INR", "ACTIVE", "2024-01-20"),
-    ("1000000005", "C003", "CURRENT", 73500.00, "INR", "ACTIVE", "2024-02-12"),
+    ("1000000002", "C002", "SALARY", 125000.00, "INR", "ACTIVE", "2024-02-10"),
+    ("1000000003", "C003", "FIXED_DEPOSIT", 200000.00, "INR", "ACTIVE", "2024-03-01"),
+    ("1000000004", "C004", "SAVINGS", 42000.00, "INR", "ACTIVE", "2024-01-20"),
+    ("1000000005", "C005", "CURRENT", 73500.00, "INR", "ACTIVE", "2024-02-12"),
     ("1000000006", "C004", "RECURRING_DEPOSIT", 18000.00, "INR", "ACTIVE", "2024-03-15"),
     ("1000000007", "C005", "SAVINGS", 9900.00, "INR", "INACTIVE", "2024-04-01"),
 ]
@@ -50,6 +50,10 @@ def seed_database() -> None:
         )
         connection.executemany(
             "INSERT OR IGNORE INTO accounts VALUES (?, ?, ?, ?, ?, ?, ?)", ACCOUNTS
+        )
+        connection.executemany(
+            "UPDATE accounts SET customer_id = ? WHERE account_number = ?",
+            [(customer_id, account_number) for account_number, customer_id, *_ in ACCOUNTS],
         )
         connection.executemany(
             "INSERT OR IGNORE INTO transactions VALUES (?, ?, ?, ?, ?, ?, ?)",
