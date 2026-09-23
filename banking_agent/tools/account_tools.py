@@ -37,7 +37,7 @@ def get_account_owner(account_number: str):
     with get_connection() as connection:
         return connection.execute(
             """
-            SELECT a.account_number, a.status, c.customer_id, c.name
+            SELECT a.account_number, a.account_type, a.status, c.customer_id, c.name
             FROM accounts AS a
             JOIN customers AS c ON c.customer_id = a.customer_id
             WHERE a.account_number = ?
@@ -50,7 +50,7 @@ def get_account_owner(account_number: str):
 def validate_account(account_number: str) -> str:
     """Check a demo account exists and is active. Never returns credentials."""
     LOGGER.info("Tool started | validate_account | account=******%s", account_number[-4:])
-    row = _account(account_number)
+    row = get_account_owner(account_number)
     if row is None:
         LOGGER.info("Account verification result | not found")
         return "Account could not be found."
@@ -61,7 +61,12 @@ def validate_account(account_number: str) -> str:
         "Account verification result | verified | type=%s",
         row["account_type"],
     )
-    return f"Account verified: {_mask(row['account_number'])}, {row['account_type']}."
+    return (
+        f"Hello! I have accessed your {row['account_type'].title()} account "
+        f"ending in **{row['account_number'][-4:]}**.\n\n"
+        f"Account Number: {row['account_number']}\n"
+        f"Account Name: {row['name']} ({row['customer_id']})"
+    )
 
 
 @tool
@@ -71,10 +76,20 @@ def get_account_details(account_number: str) -> str:
     row = _account(account_number)
     if row is None:
         return "Account could not be found."
+    with get_connection() as connection:
+        owner = connection.execute(
+            """
+            SELECT c.name, c.customer_id
+            FROM accounts AS a
+            JOIN customers AS c ON c.customer_id = a.customer_id
+            WHERE a.account_number = ?
+            """,
+            (account_number.strip(),),
+        ).fetchone()
     return (
-        f"Account: {_mask(row['account_number'])}\n"
-        f"Type: {row['account_type']}\nStatus: {row['status']}\n"
-        f"Balance: {row['currency']} {row['balance']:,.2f}"
+        f"Account Number: {row['account_number']}\n"
+        f"Account Name: {owner['name']} ({owner['customer_id']})\n"
+        f"Account Type: {row['account_type'].title()} Account"
     )
 
 
@@ -84,14 +99,14 @@ def list_customer_accounts(customer_id: str) -> str:
     LOGGER.info("TOOL list_customer_accounts | customer=%s", customer_id)
     with get_connection() as connection:
         rows = connection.execute(
-            "SELECT account_number, account_type, status, balance, currency "
+            "SELECT account_number, account_type, status "
             "FROM accounts WHERE customer_id = ? ORDER BY account_number",
             (customer_id.strip(),),
         ).fetchall()
     if not rows:
         return "Customer could not be found or has no accounts."
     return "\n".join(
-        f"- {_mask(row['account_number'])} | {row['account_type']} | "
-        f"{row['status']} | {row['currency']} {row['balance']:,.2f}"
+        f"- {row['account_number']} | {row['account_type'].title()} Account | "
+        f"{row['status'].title()}"
         for row in rows
     )

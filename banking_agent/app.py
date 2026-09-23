@@ -11,7 +11,13 @@ configure_logging()
 from banking_agent.agent import ask_agent
 from banking_agent.database.db import initialize_database
 from banking_agent.database.seed_data import seed_database
-from banking_agent.tools.account_tools import get_account_owner, validate_account
+from banking_agent.tools.account_tools import (
+    get_account_details,
+    get_account_owner,
+    list_customer_accounts,
+    validate_account,
+)
+from banking_agent.tools.transaction_tools import check_balance
 
 LOGGER = logging.getLogger(__name__)
 logging.getLogger("werkzeug").setLevel(logging.INFO)
@@ -131,18 +137,30 @@ def chat():
         LOGGER.info("Calling tool | validate_account")
         response = validate_account.invoke({"account_number": message})
     else:
-        intent = (
-            "account_details"
-            if "detail" in message.lower() or "account type" in message.lower()
-            else "agent_request"
-        )
+        text = message.lower()
+        intent = "agent_request"
+        if "detail" in text or "account type" in text:
+            intent = "account_details"
+        elif "balance" in text or "available" in text:
+            intent = "check_balance"
+        elif "my accounts" in text or "list account" in text:
+            intent = "list_customer_accounts"
         LOGGER.info(
             "Intent detected | intent=%s | account=%s | message=%r",
             intent,
             account_number or "none",
             message,
         )
-        response = ask_agent(message, customer_id, account_number, thread_id)
+        if intent == "account_details":
+            response = get_account_details.invoke(
+                {"account_number": account_number or ""}
+            )
+        elif intent == "check_balance":
+            response = check_balance.invoke({"account_number": account_number or ""})
+        elif intent == "list_customer_accounts":
+            response = list_customer_accounts.invoke({"customer_id": customer_id})
+        else:
+            response = ask_agent(message, customer_id, account_number, thread_id)
     LOGGER.info("UI response sent | customer=%s | response=%r", customer_id, response)
     LOGGER.info("HTTP response | POST /api/chat | status=200")
     return jsonify(

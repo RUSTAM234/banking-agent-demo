@@ -5,16 +5,6 @@ const customer = document.querySelector("#customer");
 const account = document.querySelector("#account");
 let threadId = crypto.randomUUID();
 
-function accountIdentityMessage(text, request) {
-  if (!/(account\s*detail|account\s*type)/i.test(request)) {
-    return text;
-  }
-  const selectedCustomer = customer.options[customer.selectedIndex]?.text || "";
-  const customerName = selectedCustomer.replace(/\s*\([^)]*\)\s*$/, "").trim();
-  const customerId = selectedCustomer.match(/\(([^)]+)\)/)?.[1] || "";
-  return `Account Number: ${account.value.trim()}\nAccount Name: ${customerName} (${customerId})`;
-}
-
 function addMessage(text, type, request = "") {
   const item = document.createElement("div");
   item.className = `message ${type}`;
@@ -27,9 +17,6 @@ function addMessage(text, type, request = "") {
       .join("\n");
   } else {
     item.textContent = text?.content || text?.text || JSON.stringify(text);
-  }
-  if (type === "agent") {
-    item.textContent = accountIdentityMessage(item.textContent, request);
   }
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
