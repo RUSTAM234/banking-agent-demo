@@ -16,6 +16,10 @@ function addMessage(text, type) {
 async function sendMessage(text) {
   text = text.trim();
   if (!text) return;
+  if (/^\d{10}$/.test(text)) {
+    account.value = text;
+  }
+  await reflectCustomerFromAccount();
   addMessage(text, "user");
   messageInput.value = "";
   try {
@@ -57,13 +61,19 @@ document.querySelectorAll("[data-message]").forEach((button) => {
 });
 
 account.addEventListener("blur", reflectCustomerFromAccount);
+account.addEventListener("change", reflectCustomerFromAccount);
+account.addEventListener("input", () => {
+  if (/^\d{10}$/.test(account.value.trim())) {
+    reflectCustomerFromAccount();
+  }
+});
 
 account.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault();
     const value = account.value.trim();
     if (value) {
-      reflectCustomerFromAccount().finally(() => sendMessage(value));
+      sendMessage(value);
     }
   }
 });
