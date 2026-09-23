@@ -8,7 +8,9 @@ let threadId = crypto.randomUUID();
 function addMessage(text, type) {
   const item = document.createElement("div");
   item.className = `message ${type}`;
-  item.textContent = text;
+  item.textContent = typeof text === "string"
+    ? text
+    : (text?.content || text?.text || JSON.stringify(text));
   chat.appendChild(item);
   chat.scrollTop = chat.scrollHeight;
 }
